@@ -1,12 +1,8 @@
 package config
 
-import (
-	"encoding/json"
-)
-
 type Project struct {
-	Repo string `json:"repo"`
-	Dir  string `json:"dir"`
+	Repo string `yaml:"repo"`
+	Dir  string `yaml:"dir"`
 }
 
 type Projects map[string]Project
@@ -21,17 +17,17 @@ func (set *Projects) Remove(p Project) {
 	delete(*set, p.Repo)
 }
 
-func (set Projects) MarshalJSON() ([]byte, error) {
+func (set Projects) MarshalYAML() (interface{}, error) {
 	projects := make([]Project, 0, len(set))
 	for _, p := range set {
 		projects = append(projects, p)
 	}
-	return json.Marshal(projects)
+	return projects, nil
 }
 
-func (set *Projects) UnmarshalJSON(b []byte) error {
+func (set *Projects) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	var projects []Project
-	if err := json.Unmarshal(b, &projects); err != nil {
+	if err := unmarshal(&projects); err != nil {
 		return err
 	}
 

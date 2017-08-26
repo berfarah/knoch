@@ -1,17 +1,18 @@
 package config
 
 import (
-	"encoding/json"
 	"io/ioutil"
 	"os"
 	"path"
+
+	"gopkg.in/yaml.v2"
 )
 
 const Filename = ".wsrc"
 
 type Config struct {
-	File     string   `json:"-"`
-	Projects Projects `json:"projects"`
+	File     string   `yaml:"-"`
+	Projects Projects `yaml:"projects"`
 }
 
 func New() (*Config, error) {
@@ -30,7 +31,7 @@ func (c *Config) Read() error {
 	if err != nil {
 		return err
 	}
-	err = json.Unmarshal(b, c)
+	err = yaml.Unmarshal(b, c)
 	return err
 }
 
@@ -41,7 +42,7 @@ func (c *Config) Write() error {
 		return err
 	}
 
-	b, err := json.MarshalIndent(*c, "", "  ")
+	b, err := yaml.Marshal(*c)
 	if err != nil {
 		return err
 	}

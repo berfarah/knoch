@@ -32,14 +32,10 @@ func TestWrite(t *testing.T) {
 	assert := assert.New(t)
 
 	p := config.Project{Repo: "foo", Dir: "bar"}
-	expected := `{
-  "projects": [
-    {
-      "repo": "foo",
-      "dir": "bar"
-    }
-  ]
-}`
+	expected := `projects:
+- repo: foo
+  dir: bar
+`
 
 	cfg := config.Config{
 		File:     "../testdata/.knoch.test",
