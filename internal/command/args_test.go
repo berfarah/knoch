@@ -7,36 +7,43 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewArgs(t *testing.T) {
+func TestNewRuntime(t *testing.T) {
 	assert := assert.New(t)
+
+	noArgs := []string{"knoch"}
+
 	cases := []struct {
 		In  []string
-		Out *command.Args
+		Out *command.Runtime
 	}{
 		{
-			[]string{},
-			&command.Args{Command: "help", Params: []string{}},
+			noArgs,
+			&command.Runtime{Executable: "knoch", Command: "help", Args: []string{}},
 		},
 		{
-			[]string{"help"},
-			&command.Args{Command: "help", Params: []string{}},
+			[]string{"knoch", "help"},
+			&command.Runtime{Executable: "knoch", Command: "help", Args: []string{}},
 		},
 		{
-			[]string{"foo", "--help", "baz"},
-			&command.Args{Command: "help", Params: []string{}},
+			[]string{"knoch", "--help"},
+			&command.Runtime{Executable: "knoch", Command: "help", Args: []string{}},
 		},
 		{
-			[]string{"foo", "--version", "baz"},
-			&command.Args{Command: "version", Params: []string{}},
+			[]string{"knoch", "foo", "--help", "baz"},
+			&command.Runtime{Executable: "knoch", Command: "foo", Args: []string{"--help", "baz"}},
 		},
 		{
-			[]string{"foo", "bar", "baz"},
-			&command.Args{Command: "foo", Params: []string{"bar", "baz"}},
+			[]string{"knoch", "foo", "--version", "baz"},
+			&command.Runtime{Executable: "knoch", Command: "version", Args: []string{}},
+		},
+		{
+			[]string{"knoch", "foo", "bar", "baz"},
+			&command.Runtime{Executable: "knoch", Command: "foo", Args: []string{"bar", "baz"}},
 		},
 	}
 
 	for _, c := range cases {
-		args := command.NewArgs(c.In)
+		args := command.NewRuntime(c.In)
 		assert.Equal(
 			args,
 			c.Out,

@@ -8,7 +8,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-const Filename = ".wsrc"
+const Filename = ".knoch"
 
 type Config struct {
 	Filename  string   `yaml:"-"`
