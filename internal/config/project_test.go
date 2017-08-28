@@ -3,7 +3,7 @@ package config_test
 import (
 	"testing"
 
-	"github.com/berfarah/knoch/config"
+	"github.com/berfarah/knoch/internal/config"
 	"github.com/stretchr/testify/assert"
 )
 
