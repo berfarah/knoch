@@ -23,11 +23,12 @@ func (r *Runner) Execute() {
 	r.failWithoutConfig(err)
 
 	command := r.Command(r.Runtime.Command)
-	if command != nil {
-		command.Call(r.Runtime)
-	} else {
+	if command == nil {
 		r.Command("help").Call(r.Runtime)
+		os.Exit(1)
 	}
+
+	command.Call(r.Runtime)
 }
 
 func (r *Runner) failWithoutConfig(err error) {
