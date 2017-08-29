@@ -3,36 +3,36 @@ package command
 import (
 	"os"
 
-	"github.com/berfarah/knoch/internal/config"
 	"github.com/berfarah/knoch/internal/utils"
 )
 
 type Runner struct {
-	Args     *Args
+	Runtime  *Runtime
 	Commands map[string]*Command
 }
 
 func NewRunner() *Runner {
 	return &Runner{
-		Args:     NewArgs(os.Args[1:]),
+		Runtime:  NewRuntime(os.Args),
 		Commands: make(map[string]*Command),
 	}
 }
 
 func (r *Runner) Execute() {
-	cfg, err := config.New()
+	err := r.Runtime.LoadConfig()
 	r.failWithoutConfig(err)
 
-	command := r.Command(r.Args.Command)
+	command := r.Command(r.Runtime.Command)
 	if command == nil {
-		r.Command("help").Call(cfg, r.Args)
-		return
+		r.Command("help").Call(r.Runtime)
+		os.Exit(1)
 	}
-	command.Call(cfg, r.Args)
+
+	command.Call(r.Runtime)
 }
 
 func (r *Runner) failWithoutConfig(err error) {
-	if err != nil && r.Args.Command != "init" {
+	if err != nil && r.Runtime.Command != "init" {
 		init := r.Command("init")
 		utils.Exit(init.UsageText())
 	}

@@ -8,26 +8,30 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-const Filename = ".wsrc"
+const Filename = ".knoch"
 
 type Config struct {
-	File     string   `yaml:"-"`
-	Projects Projects `yaml:"projects"`
+	Filename  string   `yaml:"-"`
+	Directory string   `yaml:"-"`
+	Projects  Projects `yaml:"projects"`
 }
 
 func New() (*Config, error) {
-	p, _ := os.Getwd()
-
 	c := Config{
-		File: path.Join(p, Filename),
+		Filename:  Filename,
+		Directory: ".",
+		Projects:  Projects{},
 	}
-	c.Projects = Projects{}
 	err := c.Read()
 	return &c, err
 }
 
+func (c *Config) File() string {
+	return path.Join(c.Directory, c.Filename)
+}
+
 func (c *Config) Read() error {
-	b, err := ioutil.ReadFile(c.File)
+	b, err := ioutil.ReadFile(c.File())
 	if err != nil {
 		return err
 	}
@@ -36,7 +40,7 @@ func (c *Config) Read() error {
 }
 
 func (c *Config) Write() error {
-	f, err := os.Create(c.File)
+	f, err := os.Create(c.File())
 	defer f.Close()
 	if err != nil {
 		return err

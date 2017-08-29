@@ -5,12 +5,13 @@ import (
 
 	flag "github.com/ogier/pflag"
 
-	"github.com/berfarah/knoch/internal/config"
 	"github.com/berfarah/knoch/internal/utils"
 )
 
+const binaryName = "knoch"
+
 type Command struct {
-	Run  func(c *Command, cfg *config.Config, args *Args)
+	Run  func(c *Command, r *Runtime)
 	Flag flag.FlagSet
 
 	Name  string
@@ -18,16 +19,16 @@ type Command struct {
 	Long  string
 }
 
-func (c *Command) Call(cfg *config.Config, args *Args) (err error) {
+func (c *Command) Call(r *Runtime) (err error) {
 	if c.Run != nil {
-		c.Run(c, cfg, args)
+		c.Run(c, r)
 		return nil
 	}
 
 	return nil
 }
 
-func (c *Command) parseArgs(args *Args) (err error) {
+func (c *Command) parseArgs(r *Runtime) (err error) {
 	c.Flag.SetInterspersed(true)
 	c.Flag.Init(c.Name, flag.ContinueOnError)
 	c.Flag.Usage = func() {
@@ -39,5 +40,5 @@ func (c *Command) parseArgs(args *Args) (err error) {
 }
 
 func (c *Command) UsageText() string {
-	return fmt.Sprintf("Usage: ws %s", c.Usage)
+	return fmt.Sprintf("Usage: %s %s", binaryName, c.Usage)
 }
