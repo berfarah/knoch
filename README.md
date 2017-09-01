@@ -47,30 +47,3 @@ Clone missing repositories, sync existing ones
 ```sh
 kh bundle
 ```
-
-### `sync`
-
-Fetch all repositories. Fast forward if possible. If there is unpushed work,
-warn but do nothing.
-
-```sh
-kh sync
-```
-
-### `open`
-
-`cd`s into the project
-
-V2: If there are multiple, give a choice?
-
-```sh
-kh open <REPO>
-```
-
-### `edit`
-
-`cd` and `$EDITOR` the project
-
-```sh
-kh edit <REPO>
-```

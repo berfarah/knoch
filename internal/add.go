@@ -5,6 +5,7 @@ import (
 
 	"github.com/berfarah/knoch/internal/command"
 	"github.com/berfarah/knoch/internal/config"
+	"github.com/berfarah/knoch/internal/git"
 	"github.com/berfarah/knoch/internal/utils"
 )
 
@@ -31,8 +32,8 @@ func runAdd(c *command.Command, r *command.Runtime) {
 }
 
 func addRepoProject(r *command.Runtime) {
-	repository := Git.RepoFromString(r.Args[0])
-	directory := Git.DirFromRepo(repository, r.Args)
+	repository := git.RepoFromString(r.Args[0])
+	directory := git.DirFromRepo(repository, r.Args)
 
 	r.Config.Projects.Add(config.Project{
 		Repo: repository,
@@ -49,7 +50,7 @@ func addRepoProject(r *command.Runtime) {
 	err = r.Config.Write()
 	utils.Check(err, "")
 
-	err = Git.Exec("clone", repository, directory)
+	err = git.Exec("clone", repository, directory)
 	utils.Check(err, "")
 }
 
@@ -60,7 +61,11 @@ func addDirProject(r *command.Runtime) bool {
 		return false
 	}
 
-	repo, err := Git.RepoFromDir(dir)
+	if !git.IsRepo(dir) {
+		return false
+	}
+
+	repo, err := git.RepoFromDir(dir)
 	if err != nil {
 		return false
 	}

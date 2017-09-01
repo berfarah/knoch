@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/berfarah/knoch/internal/command"
+	"github.com/berfarah/knoch/internal/git"
 	"github.com/berfarah/knoch/internal/utils"
 )
 
@@ -26,11 +27,11 @@ func runRemove(c *command.Command, r *command.Runtime) {
 	var err error
 
 	if utils.IsDir(r.Args[0]) {
-		repo, err = Git.RepoFromDir(r.Args[0])
+		repo, err = git.RepoFromDir(r.Args[0])
 		utils.Check(err, "")
 
 	} else {
-		repo = Git.RepoFromString(r.Args[0])
+		repo = git.RepoFromString(r.Args[0])
 	}
 
 	project, found := r.Config.Projects[repo]

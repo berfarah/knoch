@@ -1,3 +1,4 @@
 projects:
 - repo: foo
   dir: bar
+parallel_workers: 0
