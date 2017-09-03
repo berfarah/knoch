@@ -1,0 +1,14 @@
+project_name: knoch
+builds:
+  - binary: knoch
+    goos:
+      - darwin
+      - linux
+      - windows
+    goarch:
+      - amd64
+      - 386
+release:
+  github:
+    owner: berfarah
+    name: knoch
