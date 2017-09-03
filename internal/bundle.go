@@ -43,12 +43,7 @@ func runBundle(c *command.Command, r *command.Runtime) {
 func worker(id int, projects <-chan config.Project, results chan<- status) {
 	for project := range projects {
 		if utils.IsDir(project.Dir) {
-			if !git.IsRepo(project.Dir) {
-				err := fmt.Errorf("fatal: not a repository")
-				results <- status{Repo: project.Repo, Sync: true, Error: err}
-				continue
-			}
-			err := git.New().InDir(project.Dir).WithArgs("sync").Run()
+			err := git.Sync(project.Dir)
 			results <- status{Repo: project.Repo, Sync: true, Error: err}
 		} else {
 			err := git.New().WithArgs("clone", "--quiet", project.Repo, project.Dir).Run()

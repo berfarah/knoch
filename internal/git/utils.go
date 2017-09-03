@@ -60,3 +60,15 @@ func DirFromRepo(repository string, args []string) string {
 
 	return args[1]
 }
+
+func Sync(dir string) error {
+	if !IsRepo(dir) {
+		return fmt.Errorf("fatal: not a repository")
+	}
+
+	cmd := New().InDir(dir)
+	if strings.HasSuffix(binary, "hub") {
+		return cmd.WithArgs("sync").Run()
+	}
+	return cmd.WithArgs("fetch").Run()
+}
