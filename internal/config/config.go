@@ -9,11 +9,13 @@ import (
 )
 
 const Filename = ".knoch"
+const defaultWorkers = 4
 
 type Config struct {
 	Filename  string   `yaml:"-"`
 	Directory string   `yaml:"-"`
 	Projects  Projects `yaml:"projects"`
+	Workers   int      `yaml:"parallel_workers"`
 }
 
 func New() (*Config, error) {
@@ -21,6 +23,7 @@ func New() (*Config, error) {
 		Filename:  Filename,
 		Directory: ".",
 		Projects:  Projects{},
+		Workers:   defaultWorkers,
 	}
 	err := c.Read()
 	return &c, err

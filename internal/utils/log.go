@@ -22,6 +22,10 @@ func Exit(a ...interface{}) {
 	os.Exit(1)
 }
 
+func Print(a ...interface{}) (n int, err error) {
+	return fmt.Fprint(os.Stdout, a...)
+}
+
 func Println(a ...interface{}) (n int, err error) {
 	return fmt.Fprintln(os.Stdout, a...)
 }

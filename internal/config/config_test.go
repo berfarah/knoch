@@ -36,6 +36,7 @@ func TestWrite(t *testing.T) {
 	expected := `projects:
 - repo: foo
   dir: bar
+parallel_workers: 0
 `
 
 	cfg := config.Config{
