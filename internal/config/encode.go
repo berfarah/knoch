@@ -1,12 +1,12 @@
 package config
 
 type GeneralSettings struct {
-	Workers int `yaml:"parallel_workers"`
+	Workers int `toml:"parallel_workers"`
 }
 
 type EncodableConfig struct {
-	General  GeneralSettings
-	Projects []Project
+	General  GeneralSettings `toml:"general"`
+	Projects []Project       `toml:"project"`
 }
 
 func (c *Config) Decode(ec *EncodableConfig) {

@@ -1,8 +1,8 @@
 package config
 
 type Project struct {
-	Repo string `yaml:"repo"`
-	Dir  string `yaml:"dir"`
+	Repo string `toml:"repo"`
+	Dir  string `toml:"dir"`
 }
 
 type Projects map[string]Project

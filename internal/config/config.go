@@ -5,17 +5,17 @@ import (
 	"os"
 	"path"
 
-	"gopkg.in/yaml.v2"
+	"github.com/BurntSushi/toml"
 )
 
 const Filename = ".knoch"
 const defaultWorkers = 4
 
 type Config struct {
-	Filename  string   `yaml:"-"`
-	Directory string   `yaml:"-"`
-	Projects  Projects `yaml:"projects"`
-	Workers   int      `yaml:"parallel_workers"`
+	Filename  string   `toml:"-"`
+	Directory string   `toml:"-"`
+	Projects  Projects `toml:"projects"`
+	Workers   int      `toml:"parallel_workers"`
 }
 
 func New() (*Config, error) {
@@ -39,7 +39,7 @@ func (c *Config) Read() error {
 	if err != nil {
 		return err
 	}
-	err = yaml.Unmarshal(b, ec)
+	err = toml.Unmarshal(b, ec)
 	c.Decode(ec)
 	return err
 }
@@ -51,12 +51,10 @@ func (c *Config) Write() error {
 		return err
 	}
 
-	b, err := yaml.Marshal(c.Encode())
+	err = toml.NewEncoder(f).Encode(c.Encode())
 	if err != nil {
 		return err
 	}
-
-	_, err = f.Write(b)
 
 	return err
 }

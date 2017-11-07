@@ -1,5 +1,6 @@
-general:
-  parallel_workers: 0
-projects:
-- repo: foo
-  dir: bar
+[general]
+  parallel_workers = 0
+
+[[project]]
+  repo = "foo"
+  dir = "bar"
