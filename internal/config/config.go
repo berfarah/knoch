@@ -34,11 +34,13 @@ func (c *Config) File() string {
 }
 
 func (c *Config) Read() error {
+	ec := &EncodableConfig{}
 	b, err := ioutil.ReadFile(c.File())
 	if err != nil {
 		return err
 	}
-	err = yaml.Unmarshal(b, c)
+	err = yaml.Unmarshal(b, ec)
+	c.Decode(ec)
 	return err
 }
 
@@ -49,7 +51,7 @@ func (c *Config) Write() error {
 		return err
 	}
 
-	b, err := yaml.Marshal(*c)
+	b, err := yaml.Marshal(c.Encode())
 	if err != nil {
 		return err
 	}

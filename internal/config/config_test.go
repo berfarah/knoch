@@ -33,10 +33,11 @@ func TestWrite(t *testing.T) {
 	assert := assert.New(t)
 
 	p := config.Project{Repo: "foo", Dir: "bar"}
-	expected := `projects:
+	expected := `general:
+  parallel_workers: 0
+projects:
 - repo: foo
   dir: bar
-parallel_workers: 0
 `
 
 	cfg := config.Config{

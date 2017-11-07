@@ -1,4 +1,5 @@
+general:
+  parallel_workers: 0
 projects:
 - repo: foo
   dir: bar
-parallel_workers: 0
