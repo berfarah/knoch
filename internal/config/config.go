@@ -1,11 +1,7 @@
 package config
 
 import (
-	"io/ioutil"
-	"os"
 	"path"
-
-	"github.com/BurntSushi/toml"
 )
 
 const Filename = ".knoch"
@@ -16,6 +12,8 @@ type Config struct {
 	Directory string   `toml:"-"`
 	Projects  Projects `toml:"projects"`
 	Workers   int      `toml:"parallel_workers"`
+
+	encoded encodableConfig
 }
 
 func New() (*Config, error) {
@@ -24,6 +22,8 @@ func New() (*Config, error) {
 		Directory: ".",
 		Projects:  Projects{},
 		Workers:   defaultWorkers,
+
+		encoded: encodableConfig{},
 	}
 	err := c.Read()
 	return &c, err
@@ -31,30 +31,4 @@ func New() (*Config, error) {
 
 func (c *Config) File() string {
 	return path.Join(c.Directory, c.Filename)
-}
-
-func (c *Config) Read() error {
-	ec := &EncodableConfig{}
-	b, err := ioutil.ReadFile(c.File())
-	if err != nil {
-		return err
-	}
-	err = toml.Unmarshal(b, ec)
-	c.Decode(ec)
-	return err
-}
-
-func (c *Config) Write() error {
-	f, err := os.Create(c.File())
-	defer f.Close()
-	if err != nil {
-		return err
-	}
-
-	err = toml.NewEncoder(f).Encode(c.Encode())
-	if err != nil {
-		return err
-	}
-
-	return err
 }

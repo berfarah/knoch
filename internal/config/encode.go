@@ -1,32 +1,64 @@
 package config
 
-type GeneralSettings struct {
+import (
+	"io/ioutil"
+	"os"
+
+	"github.com/BurntSushi/toml"
+)
+
+type generalSettings struct {
 	Workers int `toml:"parallel_workers"`
 }
 
-type EncodableConfig struct {
-	General  GeneralSettings `toml:"general"`
+type encodableConfig struct {
+	General  generalSettings `toml:"general"`
 	Projects []Project       `toml:"project"`
 }
 
-func (c *Config) Decode(ec *EncodableConfig) {
-	c.Workers = ec.General.Workers
-	for _, p := range ec.Projects {
+func (c *Config) decode() {
+	c.Workers = c.encoded.General.Workers
+	for _, p := range c.encoded.Projects {
 		c.Projects.Add(p)
 	}
 }
 
-func (c *Config) Encode() EncodableConfig {
-	ec := EncodableConfig{
-		General: GeneralSettings{
+func (c *Config) refreshEncoded() {
+	c.encoded = encodableConfig{
+		General: generalSettings{
 			Workers: c.Workers,
 		},
 		Projects: make([]Project, 0, len(c.Projects)),
 	}
 
 	for _, p := range c.Projects {
-		ec.Projects = append(ec.Projects, p)
+		c.encoded.Projects = append(c.encoded.Projects, p)
+	}
+}
+
+func (c *Config) Read() error {
+	b, err := ioutil.ReadFile(c.File())
+	if err != nil {
+		return err
 	}
 
-	return ec
+	err = toml.Unmarshal(b, &c.encoded)
+	c.decode()
+	return err
+}
+
+func (c *Config) Write() error {
+	f, err := os.Create(c.File())
+	defer f.Close()
+	if err != nil {
+		return err
+	}
+
+	c.refreshEncoded()
+	err = toml.NewEncoder(f).Encode(c.encoded)
+	if err != nil {
+		return err
+	}
+
+	return err
 }
