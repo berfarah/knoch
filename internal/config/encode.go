@@ -8,7 +8,7 @@ import (
 )
 
 type generalSettings struct {
-	Workers int `toml:"parallel_workers"`
+	MaxWorkers int `toml:"parallel_workers"`
 }
 
 type encodableConfig struct {
@@ -17,7 +17,7 @@ type encodableConfig struct {
 }
 
 func (c *Config) decode() {
-	c.Workers = c.encoded.General.Workers
+	c.MaxWorkers = c.encoded.General.MaxWorkers
 	for _, p := range c.encoded.Projects {
 		c.Projects.Add(p)
 	}
@@ -26,7 +26,7 @@ func (c *Config) decode() {
 func (c *Config) refreshEncoded() {
 	c.encoded = encodableConfig{
 		General: generalSettings{
-			Workers: c.Workers,
+			MaxWorkers: c.MaxWorkers,
 		},
 		Projects: make([]Project, 0, len(c.Projects)),
 	}

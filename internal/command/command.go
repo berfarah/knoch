@@ -17,6 +17,8 @@ type Command struct {
 	Name  string
 	Usage string
 	Long  string
+
+	Aliases []string
 }
 
 func (c *Command) Call(r *Runtime) (err error) {

@@ -2,46 +2,96 @@ package command
 
 import (
 	"os"
-
-	"github.com/berfarah/knoch/internal/utils"
+	"sort"
 )
 
 type Runner struct {
-	Runtime  *Runtime
+	runtime  *Runtime
 	Commands map[string]*Command
+	Aliases  map[string]string
+
+	defaultCommand string
+	helpCommand    string
 }
 
 func NewRunner() *Runner {
 	return &Runner{
-		Runtime:  NewRuntime(os.Args),
+		runtime:  NewRuntime(os.Args),
 		Commands: make(map[string]*Command),
+		Aliases:  make(map[string]string),
 	}
+}
+
+func (r *Runner) SortedCommands() []Command {
+	var keys []string
+	for key := range r.Commands {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+
+	var commands []Command
+	for _, key := range keys {
+		commands = append(commands, *r.Command(key))
+	}
+
+	return commands
 }
 
 func (r *Runner) Execute() {
-	err := r.Runtime.LoadConfig()
-	r.failWithoutConfig(err)
-
-	command := r.Command(r.Runtime.Command)
-	if command == nil {
-		r.Command("help").Call(r.Runtime)
+	err := r.runtime.LoadConfig()
+	if err != nil && r.runtime.Command == "" {
+		r.HelpCommand().Call(r.runtime)
 		os.Exit(1)
 	}
 
-	command.Call(r.Runtime)
-}
-
-func (r *Runner) failWithoutConfig(err error) {
-	if err != nil && r.Runtime.Command != "init" {
-		init := r.Command("init")
-		utils.Exit(init.UsageText())
+	if r.runtime.Command == "" {
+		r.DefaultCommand().Call(r.runtime)
+		return
 	}
+
+	command := r.Command(r.runtime.Command)
+	if command == nil {
+		r.HelpCommand().Call(r.runtime)
+		os.Exit(1)
+	}
+
+	command.Call(r.runtime)
 }
 
 func (r *Runner) Register(c *Command) {
 	r.Commands[c.Name] = c
+	r.Alias(c.Name, c.Aliases...)
+}
+
+func (r *Runner) Alias(from string, to ...string) {
+	for _, alias := range to {
+		r.Aliases[alias] = from
+	}
+}
+
+func (r *Runner) RegisterDefault(c *Command) {
+	r.Register(c)
+	r.defaultCommand = c.Name
+}
+
+func (r *Runner) RegisterHelp(c *Command) {
+	r.Register(c)
+	r.Commands["help"] = c
 }
 
 func (r Runner) Command(name string) *Command {
-	return r.Commands[name]
+	command, ok := r.Commands[name]
+	if !ok {
+		command = r.Commands[r.Aliases[name]]
+	}
+
+	return command
+}
+
+func (r *Runner) DefaultCommand() *Command {
+	return r.Commands[r.defaultCommand]
+}
+
+func (r *Runner) HelpCommand() *Command {
+	return r.Commands["help"]
 }

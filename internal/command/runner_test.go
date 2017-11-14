@@ -14,9 +14,15 @@ var (
 
 func TestRegister(t *testing.T) {
 	Runner.Register(cmd)
-	assert.Equal(t, cmd, Runner.Commands["foo"])
+	assert.Equal(t, cmd, Runner.Command("foo"))
 }
 
-func TestCommand(t *testing.T) {
-	assert.Equal(t, cmd, Runner.Command("foo"))
+func TestRegisterHelp(t *testing.T) {
+	Runner.RegisterHelp(cmd)
+	assert.Equal(t, cmd, Runner.HelpCommand())
+}
+
+func TestRegisterDefault(t *testing.T) {
+	Runner.RegisterDefault(cmd)
+	assert.Equal(t, cmd, Runner.DefaultCommand())
 }

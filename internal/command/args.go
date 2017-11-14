@@ -35,7 +35,11 @@ const (
 func parseArgs(args []string, r *Runtime) {
 	r.Args = []string{}
 
-	if len(args) == 0 || args[0] == helpFlag {
+	if len(args) == 0 {
+		return
+	}
+
+	if args[0] == helpFlag {
 		r.Command = "help"
 		return
 	}

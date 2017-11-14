@@ -18,7 +18,7 @@ func TestNewRuntime(t *testing.T) {
 	}{
 		{
 			noArgs,
-			&command.Runtime{Executable: "knoch", Command: "help", Args: []string{}},
+			&command.Runtime{Executable: "knoch", Command: "", Args: []string{}},
 		},
 		{
 			[]string{"knoch", "help"},
@@ -45,8 +45,8 @@ func TestNewRuntime(t *testing.T) {
 	for _, c := range cases {
 		args := command.NewRuntime(c.In)
 		assert.Equal(
-			args,
 			c.Out,
+			args,
 		)
 	}
 }

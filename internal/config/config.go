@@ -8,12 +8,20 @@ const Filename = ".knoch"
 const defaultWorkers = 4
 
 type Config struct {
-	Filename  string   `toml:"-"`
-	Directory string   `toml:"-"`
-	Projects  Projects `toml:"projects"`
-	Workers   int      `toml:"parallel_workers"`
+	Filename   string   `toml:"-"`
+	Directory  string   `toml:"-"`
+	Projects   Projects `toml:"projects"`
+	MaxWorkers int      `toml:"parallel_workers"`
 
 	encoded encodableConfig
+}
+
+func (c Config) Workers() int {
+	if len(c.Projects) < c.MaxWorkers {
+		return len(c.Projects)
+	}
+
+	return c.MaxWorkers
 }
 
 func New() (*Config, error) {
@@ -21,11 +29,14 @@ func New() (*Config, error) {
 		Filename:  Filename,
 		Directory: ".",
 		Projects:  Projects{},
-		Workers:   defaultWorkers,
 
 		encoded: encodableConfig{},
 	}
 	err := c.Read()
+	if c.MaxWorkers == 0 {
+		c.MaxWorkers = defaultWorkers
+	}
+
 	return &c, err
 }
 
