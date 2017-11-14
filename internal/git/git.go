@@ -5,8 +5,10 @@ import (
 	"os/exec"
 	"strings"
 	"syscall"
+	"time"
 
 	"github.com/berfarah/knoch/internal/utils"
+	"github.com/justincampbell/timeago"
 )
 
 var binary string
@@ -52,6 +54,25 @@ func (c *Command) WithArgs(args ...string) *Command {
 func (c *Command) InDir(dir string) *Command {
 	c.Dir = dir
 	return c
+}
+
+func (c *Command) Branch() (branch string, err error) {
+	c.Args = []string{"rev-parse", "--abbrev-ref", "HEAD"}
+	strings, err := c.Output()
+	if err == nil {
+		branch = strings[0]
+	}
+	return branch, err
+}
+
+func (c *Command) LastCommit() (timestamp string, err error) {
+	c.Args = []string{"rev-list", "--format=format:'%ci'", "--max-count=1", "HEAD"}
+	strings, err := c.Output()
+	t, err := time.Parse("'2006-1-2 15:04:05 -0700'", strings[1])
+	if err == nil {
+		timestamp = timeago.FromTime(t)
+	}
+	return timestamp, err
 }
 
 func (c *Command) Cmd() *exec.Cmd {
