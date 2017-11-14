@@ -19,9 +19,9 @@ func TestRead(t *testing.T) {
 	set.Add(p)
 
 	cfg := config.Config{
-		Directory: "../testdata",
-		Filename:  ".knoch",
-		Projects:  config.Projects{},
+		WorkDir:  "../testdata",
+		Filename: ".knoch",
+		Projects: config.Projects{},
 	}
 
 	err := cfg.Read()
@@ -42,9 +42,9 @@ func TestWrite(t *testing.T) {
 `
 
 	cfg := config.Config{
-		Directory: "../testdata",
-		Filename:  ".knoch.test",
-		Projects:  config.Projects{},
+		WorkDir:  "../testdata",
+		Filename: ".knoch.test",
+		Projects: config.Projects{},
 	}
 	cfg.Projects.Add(p)
 

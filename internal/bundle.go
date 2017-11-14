@@ -42,11 +42,11 @@ func runBundle(c *command.Command, r *command.Runtime) {
 
 func bundleWorker(id int, projects <-chan config.Project, results chan<- bundleStatus) {
 	for project := range projects {
-		if utils.IsDir(project.Dir) {
-			err := git.Sync(project.Dir)
+		if utils.IsDir(project.Path()) {
+			err := git.Sync(project.Path())
 			results <- bundleStatus{Repo: project.Repo, Sync: true, Error: err}
 		} else {
-			err := git.New().WithArgs("clone", "--quiet", project.Repo, project.Dir).Run()
+			err := git.New().WithArgs("clone", "--quiet", project.Repo, project.Path()).Run()
 			results <- bundleStatus{Repo: project.Repo, Download: true, Error: err}
 		}
 	}

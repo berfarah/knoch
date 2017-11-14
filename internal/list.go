@@ -5,6 +5,7 @@ import (
 	"sort"
 
 	"github.com/berfarah/knoch/internal/command"
+	"github.com/berfarah/knoch/internal/config"
 	"github.com/berfarah/knoch/internal/git"
 	"github.com/berfarah/knoch/internal/utils"
 )
@@ -84,7 +85,7 @@ func runList(c *command.Command, r *command.Runtime) {
 
 	table := newListTable()
 	done := make(chan listGitDetail, count)
-	projectDirs := make(chan string, count)
+	projectDirs := make(chan config.Project, count)
 
 	for w := 0; w < listWorkerCount; w++ {
 		go listWorker(projectDirs, done)
@@ -92,7 +93,7 @@ func runList(c *command.Command, r *command.Runtime) {
 
 	for _, project := range r.Config.Projects {
 		table.RecordOrder(project.Dir) // the table should loop over projects to create this, but that would add another loop :P
-		projectDirs <- project.Dir
+		projectDirs <- project
 	}
 
 	table.Sort()
@@ -102,9 +103,9 @@ func runList(c *command.Command, r *command.Runtime) {
 	table.Print()
 }
 
-func listWorker(projectDirs <-chan string, done chan<- listGitDetail) {
-	for projectDir := range projectDirs {
-		g := git.New().InDir(projectDir)
+func listWorker(projectDirs <-chan config.Project, done chan<- listGitDetail) {
+	for project := range projectDirs {
+		g := git.New().InDir(project.Path())
 
 		branch, err := g.Branch()
 		if err != nil {
@@ -116,7 +117,7 @@ func listWorker(projectDirs <-chan string, done chan<- listGitDetail) {
 		}
 
 		done <- listGitDetail{
-			Dir:          projectDir,
+			Dir:          project.Dir,
 			Branch:       branch,
 			LatestCommit: lastCommit,
 		}

@@ -39,7 +39,7 @@ func runRemove(c *command.Command, r *command.Runtime) {
 		utils.Exit("Not tracking " + r.Args[0] + ", did nothing")
 	}
 
-	dir := project.Dir
+	dir := project.Path()
 
 	r.Config.Projects.Remove(project)
 	r.Config.Write()
