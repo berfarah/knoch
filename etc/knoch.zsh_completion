@@ -4,7 +4,7 @@
 # For reference:
 # https://github.com/zsh-users/zsh-completions/blob/master/zsh-completions-howto.org
 
-__knoch_repos() {
+__knoch_projects() {
   _values $(knoch ls --name-only)
 }
 
@@ -16,6 +16,7 @@ _knoch() {
     add:'Clone and track a repository locally'
     remove:'Remove and stop tracking repository'
     list:'List tracked repositories'
+    show:'Show full path of selected project'
   )
 
   _arguments \
@@ -27,14 +28,17 @@ _knoch() {
   case $words[1] in
     bundle)
       ;;
-    list)
+    ls|list)
       _arguments '--name-only[list only repo names]'
       ;;
     add)
       _arguments '*:dirs:_path_files -/'
       ;;
     remove)
-      _arguments '*:repos:__knoch_repos'
+      _arguments '*:projects:__knoch_projects'
+      ;;
+    s|show)
+      _arguments '*:projects:__knoch_projects'
       ;;
   esac
 }
