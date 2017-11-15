@@ -25,7 +25,7 @@ func init() {
 		Aliases: []string{"ls"},
 	})
 	cmd := Runner.Command("list")
-	cmd.Flag.BoolVar(&flagListSimple, "name-only", false, "List only repo names")
+	cmd.Flag.BoolVar(&flagListSimple, "name-only", false, "list only repo names")
 }
 
 const listWorkerCount = 4

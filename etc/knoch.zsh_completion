@@ -1,0 +1,42 @@
+#compdef knoch
+#autoload
+
+# For reference:
+# https://github.com/zsh-users/zsh-completions/blob/master/zsh-completions-howto.org
+
+__knoch_repos() {
+  _values $(knoch ls --name-only)
+}
+
+_knoch() {
+  local -a commands
+
+  commands=(
+    bundle:'Download or update tracked repositories'
+    add:'Clone and track a repository locally'
+    remove:'Remove and stop tracking repository'
+    list:'List tracked repositories'
+  )
+
+  _arguments \
+    "1: :{_describe 'command' commands}" \
+    '*:: :->args'
+
+  [ "$state" != "args" ] && return 0
+
+  case $words[1] in
+    bundle)
+      ;;
+    list)
+      _arguments '--name-only[list only repo names]'
+      ;;
+    add)
+      _arguments '*:dirs:_path_files -/'
+      ;;
+    remove)
+      _arguments '*:repos:__knoch_repos'
+      ;;
+  esac
+}
+
+_knoch "$@"

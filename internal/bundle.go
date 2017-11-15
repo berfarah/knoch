@@ -17,7 +17,7 @@ func init() {
 
 		Usage: "bundle",
 		Name:  "bundle",
-		Long:  "Download all repositories",
+		Long:  "Download or update tracked repositories",
 	})
 }
 

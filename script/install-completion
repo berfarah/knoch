@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+DIR=$(cd $(dirname $0) && pwd -P)
+
+ln -sf "$DIR/../etc/knoch.zsh_completion" "$(brew --prefix)/share/zsh/site-functions/_knoch"
