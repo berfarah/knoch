@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+set -e
+
+VERSION="$1"
+
+if [ -z "$VERSION" ]; then
+  echo "A version must be provided for the release."
+  echo "(make sure it lines up with what's in internal/version.go)"
+  exit 1
+fi
+
+# Ensure tests pass
+go test ./...
+
+# Create a tag if needed
+if [ -z "$(git tag -l $VERSION)" ]; then
+  git tag $VERSION
+fi
+
+# Release!
+goreleaser --rm-dist
