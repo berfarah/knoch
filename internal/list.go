@@ -10,6 +10,10 @@ import (
 	"github.com/berfarah/knoch/internal/utils"
 )
 
+var (
+	flagListSimple bool
+)
+
 func init() {
 	Runner.Register(&command.Command{
 		Run: runList,
@@ -20,6 +24,8 @@ func init() {
 
 		Aliases: []string{"ls"},
 	})
+	cmd := Runner.Command("list")
+	cmd.Flag.BoolVar(&flagListSimple, "name-only", false, "List only repo names")
 }
 
 const listWorkerCount = 4
@@ -81,6 +87,28 @@ func (l *listTable) RecordResult(d listGitDetail) {
 }
 
 func runList(c *command.Command, r *command.Runtime) {
+	if flagListSimple {
+		runSimpleList(c, r)
+	} else {
+		runFullList(c, r)
+	}
+}
+
+func runSimpleList(c *command.Command, r *command.Runtime) {
+	dirs := make([]string, 0, len(r.Config.Projects))
+
+	for _, project := range r.Config.Projects {
+		dirs = append(dirs, project.Dir)
+	}
+
+	sort.Strings(dirs)
+
+	for _, dir := range dirs {
+		utils.Println(dir)
+	}
+}
+
+func runFullList(c *command.Command, r *command.Runtime) {
 	count := len(r.Config.Projects)
 
 	table := newListTable()

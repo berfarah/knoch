@@ -22,6 +22,11 @@ type Command struct {
 }
 
 func (c *Command) Call(r *Runtime) (err error) {
+	err = c.parseArgs(r)
+	if err != nil {
+		return err
+	}
+
 	if c.Run != nil {
 		c.Run(c, r)
 		return nil
@@ -36,9 +41,13 @@ func (c *Command) parseArgs(r *Runtime) (err error) {
 	c.Flag.Usage = func() {
 		utils.Errorln("")
 		utils.Errorln(c.UsageText())
+		c.Flag.PrintDefaults()
+	}
+	if err = c.Flag.Parse(r.Args); err == nil {
+		r.Args = c.Flag.Args()
 	}
 
-	return nil
+	return err
 }
 
 func (c *Command) UsageText() string {
