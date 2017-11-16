@@ -5,51 +5,55 @@ import (
 	"testing"
 
 	"github.com/berfarah/knoch/internal/config"
+	"github.com/berfarah/knoch/internal/config/project"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestRead(t *testing.T) {
 	assert := assert.New(t)
 
-	p := config.Project{
+	p := project.Project{
 		Repo: "github.com/berfarah/dotfiles",
 		Dir:  "berfarah/dotfiles",
 	}
-	set := config.Projects{}
-	set.Add(p)
+	registry := project.Registry{}
+	registry.Add(p)
 
 	cfg := config.Config{
-		WorkDir:  "../testdata",
-		Filename: ".knoch",
-		Projects: config.Projects{},
+		File:     "../testdata/.knoch.read",
+		Projects: []project.Project{},
+		Registry: registry,
 	}
 
 	err := cfg.Read()
 	assert.Nil(err)
-	assert.Equal(set, cfg.Projects)
+
+	assert.Equal(8, cfg.General.MaxWorkers)
+	assert.Equal(registry.Sorted(), cfg.Projects)
 }
 
 func TestWrite(t *testing.T) {
 	assert := assert.New(t)
 
-	p := config.Project{Repo: "foo", Dir: "bar"}
+	p := project.Project{Repo: "foo", Dir: "bar"}
 	expected := `[general]
   parallel_workers = 0
 
 [[project]]
-  repo = "foo"
   dir = "bar"
+  repo = "foo"
 `
 
+	registry := project.Registry{}
+	registry.Add(p)
 	cfg := config.Config{
-		WorkDir:  "../testdata",
-		Filename: ".knoch.test",
-		Projects: config.Projects{},
+		File:     "../testdata/.knoch.write",
+		Projects: []project.Project{},
+		Registry: registry,
 	}
-	cfg.Projects.Add(p)
 
 	err := cfg.Write()
-	b, err := ioutil.ReadFile("../testdata/.knoch.test")
+	b, err := ioutil.ReadFile("../testdata/.knoch.write")
 	assert.Nil(err)
 	assert.Equal(expected, string(b))
 }

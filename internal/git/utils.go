@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+
+	"github.com/berfarah/knoch/internal/utils"
 )
 
 func IsRepo(dir string) bool {
@@ -14,6 +16,14 @@ func IsRepo(dir string) bool {
 // git output:
 // origin\tgit@github.com:berfarah/knoch.git\t(fetch)
 func RepoFromDir(dir string) (string, error) {
+	if !utils.IsDir(dir) {
+		return "", fmt.Errorf("Not a directory")
+	}
+
+	if !IsRepo(dir) {
+		return "", fmt.Errorf("Not a repository")
+	}
+
 	out, err := New().InDir(dir).WithArgs("remote", "-v").Output()
 	if err != nil {
 		return "", err

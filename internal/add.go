@@ -2,9 +2,11 @@ package internal
 
 import (
 	"os"
+	"path/filepath"
 
 	"github.com/berfarah/knoch/internal/command"
 	"github.com/berfarah/knoch/internal/config"
+	"github.com/berfarah/knoch/internal/config/project"
 	"github.com/berfarah/knoch/internal/git"
 	"github.com/berfarah/knoch/internal/utils"
 )
@@ -20,66 +22,44 @@ func init() {
 }
 
 func runAdd(c *command.Command, r *command.Runtime) {
+	var (
+		proj project.Project
+		err  error
+	)
+
 	if len(r.Args) == 0 {
 		utils.Exit(c.UsageText())
 	}
 
-	if addDirProject(r) {
-		return
-	}
-
-	addRepoProject(r)
-}
-
-func addRepoProject(r *command.Runtime) {
-	repository := git.RepoFromString(r.Args[0])
-	directory := git.DirFromRepo(repository, r.Args)
-
-	r.Config.Projects.Add(config.Project{
-		Repo: repository,
-		Dir:  directory,
-	})
-
-	if utils.IsDir(directory) {
-		return
-	}
-
-	err := os.MkdirAll(directory, 0755)
-	utils.Check(err, "")
-
-	err = r.Config.Write()
-	utils.Check(err, "")
-
-	err = git.Exec("clone", repository, directory)
-	utils.Check(err, "")
-}
-
-func addDirProject(r *command.Runtime) bool {
-	dir := r.Args[0]
-
-	if !utils.IsDir(dir) {
-		return false
-	}
-
-	if !git.IsRepo(dir) {
-		return false
-	}
-
-	repo, err := git.RepoFromDir(dir)
+	proj, err = project.FromDir(r.Args[0])
 	if err != nil {
-		return false
+		proj, err = project.FromRepo(r.Args[0])
+
+		if len(r.Args) > 1 {
+			proj.Dir = r.Args[1]
+		}
 	}
 
-	added := r.Config.Projects.Add(config.Project{
-		Repo: repo,
-		Dir:  dir,
-	})
-	if !added {
-		return true
-	}
-
-	err = r.Config.Write()
 	utils.Check(err, "")
 
-	return true
+	project.Register(proj)
+	err = config.Write()
+	utils.Check(err, "")
+
+	if !proj.Exists() {
+		cloneProject(proj)
+	}
+}
+
+func cloneProject(proj project.Project) {
+	var err error
+
+	parentDir := filepath.Dir(proj.Path())
+	if !utils.IsDir(parentDir) {
+		err = os.MkdirAll(parentDir, 0755)
+		utils.Check(err, "")
+	}
+
+	err = git.Exec("clone", proj.Repo, proj.Path())
+	utils.Check(err, "")
 }

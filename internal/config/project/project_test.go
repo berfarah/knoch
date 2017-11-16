@@ -1,34 +1,34 @@
-package config_test
+package project_test
 
 import (
 	"testing"
 
-	"github.com/berfarah/knoch/internal/config"
+	project "github.com/berfarah/knoch/internal/config/project"
 	"github.com/stretchr/testify/assert"
 )
 
-var p = config.Project{
+var p = project.Project{
 	Repo: "github.com/berfarah/dotfiles",
 	Dir:  "berfarah/dotfiles",
 }
 
 func TestAddProject(t *testing.T) {
 	assert := assert.New(t)
-	set := config.Projects{}
-	set.Add(p)
+	r := project.Registry{}
+	r.Add(p)
 
-	_, ok := set[p.Repo]
+	_, ok := r[p.Dir]
 
 	assert.True(ok, "should add the project")
 }
 
 func TestRemoveProject(t *testing.T) {
 	assert := assert.New(t)
-	set := config.Projects{}
-	set.Add(p)
-	set.Remove(p)
+	r := project.Registry{}
+	r.Add(p)
+	r.Remove(p)
 
-	_, ok := set[p.Repo]
+	_, ok := r[p.Dir]
 
 	assert.False(ok, "should remove the project")
 }

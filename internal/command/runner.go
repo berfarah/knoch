@@ -3,6 +3,8 @@ package command
 import (
 	"os"
 	"sort"
+
+	"github.com/berfarah/knoch/internal/config"
 )
 
 type Runner struct {
@@ -38,7 +40,7 @@ func (r *Runner) SortedCommands() []Command {
 }
 
 func (r *Runner) Execute() {
-	err := r.runtime.LoadConfig()
+	err := config.Read()
 	if err != nil && r.runtime.Command == "" {
 		r.HelpCommand().Call(r.runtime)
 		os.Exit(1)

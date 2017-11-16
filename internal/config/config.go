@@ -1,91 +1,44 @@
 package config
 
 import (
-	"os"
-	"path"
-	"path/filepath"
+	"github.com/berfarah/knoch/internal/config/finder"
+	"github.com/berfarah/knoch/internal/config/project"
 )
 
-const Filename = ".knoch"
-const defaultDir = "."
 const defaultWorkers = 4
 
-var workDir string
+var Instance = Config{
+	File:     finder.File(),
+	WorkDir:  finder.WorkDir,
+	Registry: project.Tracker,
+	Projects: []project.Project{},
+	General: generalSettings{
+		MaxWorkers: defaultWorkers,
+	},
+}
+
+type generalSettings struct {
+	MaxWorkers int `toml:"parallel_workers"`
+}
 
 type Config struct {
-	Filename string `toml:"-"`
-	WorkDir  string `toml:"-"`
+	File    string `toml:"-"`
+	WorkDir string `toml:"-"`
 
-	Projects   Projects `toml:"projects"`
-	MaxWorkers int      `toml:"parallel_workers"`
+	Registry project.Registry `toml:"-"`
 
-	encoded encodableConfig
+	General  generalSettings   `toml:"general"`
+	Projects []project.Project `toml:"project"`
 }
 
 func (c Config) Workers() int {
-	if c.MaxWorkers < 1 {
+	if c.General.MaxWorkers < 1 {
 		return 1
 	}
 
-	if len(c.Projects) < c.MaxWorkers {
+	if len(c.Projects) < c.General.MaxWorkers {
 		return len(c.Projects)
 	}
 
-	return c.MaxWorkers
-}
-
-func New() (*Config, error) {
-	c := Config{
-		Filename:   Filename,
-		Projects:   Projects{},
-		MaxWorkers: defaultWorkers,
-
-		encoded: encodableConfig{},
-	}
-	c.findConfig()
-	workDir = c.WorkDir
-	err := c.Read()
-
-	return &c, err
-}
-
-func (c *Config) findConfig() {
-	var err error
-
-	c.WorkDir, err = os.Getwd()
-
-	if err != nil {
-		c.WorkDir = defaultDir
-		return
-	}
-
-	for {
-		if doesFileExist(c.File()) {
-			return
-		}
-
-		if isHome(c.WorkDir) || isRoot(c.WorkDir) {
-			c.WorkDir = defaultDir
-			return
-		}
-
-		c.WorkDir = filepath.Dir(c.WorkDir)
-	}
-}
-
-func doesFileExist(path string) bool {
-	_, err := os.Stat(path)
-	return !os.IsNotExist(err)
-}
-
-func isHome(path string) bool {
-	return path == os.Getenv("HOME")
-}
-
-func isRoot(path string) bool {
-	return path == "/"
-}
-
-func (c *Config) File() string {
-	return path.Join(c.WorkDir, c.Filename)
+	return c.General.MaxWorkers
 }

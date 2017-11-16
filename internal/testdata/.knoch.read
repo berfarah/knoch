@@ -1,3 +1,6 @@
+[general]
+  parallel_workers = 8
+
 [[project]]
   repo = "github.com/berfarah/dotfiles"
   dir = "berfarah/dotfiles"

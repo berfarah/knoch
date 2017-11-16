@@ -7,6 +7,7 @@ import (
 
 	"github.com/berfarah/knoch/internal/command"
 	"github.com/berfarah/knoch/internal/config"
+	"github.com/berfarah/knoch/internal/config/project"
 	"github.com/berfarah/knoch/internal/git"
 	"github.com/berfarah/knoch/internal/utils"
 )
@@ -22,32 +23,32 @@ func init() {
 }
 
 func runBundle(c *command.Command, r *command.Runtime) {
-	count := len(r.Config.Projects)
+	count := len(project.Tracker)
 	done := make(chan bool, 1)
-	projects := make(chan config.Project, count)
+	projs := make(chan project.Project, count)
 	results := make(chan bundleStatus, count)
 	bundleProgress := newBundleProgress(count)
 
 	go bundleProgress.Track(results, done)
-	for w := 0; w < r.Config.Workers(); w++ {
-		go bundleWorker(w, projects, results)
+	for w := 0; w < config.Instance.Workers(); w++ {
+		go bundleWorker(w, projs, results)
 	}
-	for _, project := range r.Config.Projects {
-		projects <- project
+	for _, proj := range project.Tracker {
+		projs <- proj
 	}
-	close(projects)
+	close(projs)
 
 	<-done
 }
 
-func bundleWorker(id int, projects <-chan config.Project, results chan<- bundleStatus) {
-	for project := range projects {
-		if utils.IsDir(project.Path()) {
-			err := git.Sync(project.Path())
-			results <- bundleStatus{Repo: project.Repo, Sync: true, Error: err}
+func bundleWorker(id int, projs <-chan project.Project, results chan<- bundleStatus) {
+	for proj := range projs {
+		if utils.IsDir(proj.Path()) {
+			err := git.Sync(proj.Path())
+			results <- bundleStatus{Repo: proj.Repo, Sync: true, Error: err}
 		} else {
-			err := git.New().WithArgs("clone", "--quiet", project.Repo, project.Path()).Run()
-			results <- bundleStatus{Repo: project.Repo, Download: true, Error: err}
+			err := git.New().WithArgs("clone", "--quiet", proj.Repo, proj.Path()).Run()
+			results <- bundleStatus{Repo: proj.Repo, Download: true, Error: err}
 		}
 	}
 }

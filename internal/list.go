@@ -6,6 +6,7 @@ import (
 
 	"github.com/berfarah/knoch/internal/command"
 	"github.com/berfarah/knoch/internal/config"
+	"github.com/berfarah/knoch/internal/config/project"
 	"github.com/berfarah/knoch/internal/git"
 	"github.com/berfarah/knoch/internal/utils"
 )
@@ -95,33 +96,25 @@ func runList(c *command.Command, r *command.Runtime) {
 }
 
 func runSimpleList(c *command.Command, r *command.Runtime) {
-	dirs := make([]string, 0, len(r.Config.Projects))
-
-	for _, project := range r.Config.Projects {
-		dirs = append(dirs, project.Dir)
-	}
-
-	sort.Strings(dirs)
-
-	for _, dir := range dirs {
-		utils.Println(dir)
+	for _, p := range config.Instance.Registry.Sorted() {
+		utils.Println(p.Dir)
 	}
 }
 
 func runFullList(c *command.Command, r *command.Runtime) {
-	count := len(r.Config.Projects)
+	count := len(config.Instance.Registry)
 
 	table := newListTable()
 	done := make(chan listGitDetail, count)
-	projectDirs := make(chan config.Project, count)
+	projDirs := make(chan project.Project, count)
 
 	for w := 0; w < listWorkerCount; w++ {
-		go listWorker(projectDirs, done)
+		go listWorker(projDirs, done)
 	}
 
-	for _, project := range r.Config.Projects {
-		table.RecordOrder(project.Dir) // the table should loop over projects to create this, but that would add another loop :P
-		projectDirs <- project
+	for _, proj := range config.Instance.Registry {
+		table.RecordOrder(proj.Dir) // the table should loop over projs to create this, but that would add another loop :P
+		projDirs <- proj
 	}
 
 	table.Sort()
@@ -131,9 +124,9 @@ func runFullList(c *command.Command, r *command.Runtime) {
 	table.Print()
 }
 
-func listWorker(projectDirs <-chan config.Project, done chan<- listGitDetail) {
-	for project := range projectDirs {
-		g := git.New().InDir(project.Path())
+func listWorker(projDirs <-chan project.Project, done chan<- listGitDetail) {
+	for proj := range projDirs {
+		g := git.New().InDir(proj.Path())
 
 		branch, err := g.Branch()
 		if err != nil {
@@ -145,7 +138,7 @@ func listWorker(projectDirs <-chan config.Project, done chan<- listGitDetail) {
 		}
 
 		done <- listGitDetail{
-			Dir:          project.Dir,
+			Dir:          proj.Dir,
 			Branch:       branch,
 			LatestCommit: lastCommit,
 		}

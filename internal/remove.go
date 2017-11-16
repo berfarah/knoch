@@ -4,7 +4,8 @@ import (
 	"os"
 
 	"github.com/berfarah/knoch/internal/command"
-	"github.com/berfarah/knoch/internal/git"
+	"github.com/berfarah/knoch/internal/config"
+	"github.com/berfarah/knoch/internal/config/project"
 	"github.com/berfarah/knoch/internal/utils"
 )
 
@@ -19,31 +20,24 @@ func init() {
 }
 
 func runRemove(c *command.Command, r *command.Runtime) {
+	var (
+		proj project.Project
+		err  error
+	)
+
 	if len(r.Args) == 0 {
 		utils.Exit(c.UsageText())
 	}
 
-	var repo string
-	var err error
+	proj, err = project.FromDir(r.Args[0])
+	utils.Check(err, "")
 
-	if utils.IsDir(r.Args[0]) {
-		repo, err = git.RepoFromDir(r.Args[0])
-		utils.Check(err, "")
-
-	} else {
-		repo = git.RepoFromString(r.Args[0])
-	}
-
-	project, found := r.Config.Projects[repo]
-	if !found {
+	if !project.Remove(proj) {
 		utils.Exit("Not tracking " + r.Args[0] + ", did nothing")
 	}
 
-	dir := project.Path()
+	err = config.Write()
 
-	r.Config.Projects.Remove(project)
-	r.Config.Write()
-
-	err = os.RemoveAll(dir)
+	err = os.RemoveAll(proj.Path())
 	utils.Check(err, "")
 }

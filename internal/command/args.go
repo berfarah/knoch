@@ -1,21 +1,9 @@
 package command
 
-import (
-	"github.com/berfarah/knoch/internal/config"
-)
-
 type Runtime struct {
 	Executable string
 	Command    string
 	Args       []string
-
-	Config *config.Config
-}
-
-func (r *Runtime) LoadConfig() error {
-	cfg, err := config.New()
-	r.Config = cfg
-	return err
 }
 
 func NewRuntime(args []string) *Runtime {

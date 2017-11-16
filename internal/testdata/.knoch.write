@@ -2,5 +2,5 @@
   parallel_workers = 0
 
 [[project]]
-  repo = "foo"
   dir = "bar"
+  repo = "foo"
