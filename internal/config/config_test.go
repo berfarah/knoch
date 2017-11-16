@@ -47,6 +47,7 @@ func TestWrite(t *testing.T) {
 	registry := project.Registry{}
 	registry.Add(p)
 	cfg := config.Config{
+		General:  &config.GeneralSettings{0},
 		File:     "../testdata/.knoch.write",
 		Projects: []project.Project{},
 		Registry: registry,

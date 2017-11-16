@@ -7,17 +7,19 @@ import (
 
 const defaultWorkers = 4
 
-var Instance = Config{
+var general = GeneralSettings{
+	MaxWorkers: defaultWorkers,
+}
+
+var instance = Config{
 	File:     finder.File(),
 	WorkDir:  finder.WorkDir,
 	Registry: project.Tracker,
 	Projects: []project.Project{},
-	General: generalSettings{
-		MaxWorkers: defaultWorkers,
-	},
+	General:  &general,
 }
 
-type generalSettings struct {
+type GeneralSettings struct {
 	MaxWorkers int `toml:"parallel_workers"`
 }
 
@@ -27,18 +29,18 @@ type Config struct {
 
 	Registry project.Registry `toml:"-"`
 
-	General  generalSettings   `toml:"general"`
+	General  *GeneralSettings  `toml:"general"`
 	Projects []project.Project `toml:"project"`
 }
 
-func (c Config) Workers() int {
-	if c.General.MaxWorkers < 1 {
+func Workers() int {
+	if general.MaxWorkers < 1 {
 		return 1
 	}
 
-	if len(c.Projects) < c.General.MaxWorkers {
-		return len(c.Projects)
+	if len(project.Tracker) < general.MaxWorkers {
+		return len(project.Tracker)
 	}
 
-	return c.General.MaxWorkers
+	return general.MaxWorkers
 }

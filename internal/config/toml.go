@@ -9,7 +9,7 @@ import (
 )
 
 func Read() error {
-	return Instance.Read()
+	return instance.Read()
 }
 
 func (c *Config) Read() error {
@@ -26,7 +26,7 @@ func (c *Config) Read() error {
 }
 
 func Write() error {
-	return Instance.Write()
+	return instance.Write()
 }
 
 func (c *Config) Write() error {

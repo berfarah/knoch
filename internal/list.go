@@ -5,7 +5,6 @@ import (
 	"sort"
 
 	"github.com/berfarah/knoch/internal/command"
-	"github.com/berfarah/knoch/internal/config"
 	"github.com/berfarah/knoch/internal/config/project"
 	"github.com/berfarah/knoch/internal/git"
 	"github.com/berfarah/knoch/internal/utils"
@@ -96,13 +95,13 @@ func runList(c *command.Command, r *command.Runtime) {
 }
 
 func runSimpleList(c *command.Command, r *command.Runtime) {
-	for _, p := range config.Instance.Registry.Sorted() {
+	for _, p := range project.Tracker.Sorted() {
 		utils.Println(p.Dir)
 	}
 }
 
 func runFullList(c *command.Command, r *command.Runtime) {
-	count := len(config.Instance.Registry)
+	count := len(project.Tracker)
 
 	table := newListTable()
 	done := make(chan listGitDetail, count)
@@ -112,7 +111,7 @@ func runFullList(c *command.Command, r *command.Runtime) {
 		go listWorker(projDirs, done)
 	}
 
-	for _, proj := range config.Instance.Registry {
+	for _, proj := range project.Tracker {
 		table.RecordOrder(proj.Dir) // the table should loop over projs to create this, but that would add another loop :P
 		projDirs <- proj
 	}
