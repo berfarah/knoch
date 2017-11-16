@@ -34,11 +34,11 @@ type Projects map[string]Project
 
 func (set *Projects) Add(p Project) bool {
 	p.Clean()
-	_, found := (*set)[p.Repo]
-	(*set)[p.Repo] = p
+	_, found := (*set)[p.Dir]
+	(*set)[p.Dir] = p
 	return !found
 }
 
 func (set *Projects) Remove(p Project) {
-	delete(*set, p.Repo)
+	delete(*set, p.Dir)
 }
