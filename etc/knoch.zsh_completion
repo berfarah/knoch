@@ -17,6 +17,7 @@ _knoch() {
     remove:'Remove and stop tracking repository'
     list:'List tracked repositories'
     show:'Show full path of selected project'
+    open:'Open the selected project in $EDITOR'
   )
 
   _arguments \
@@ -34,10 +35,7 @@ _knoch() {
     add)
       _arguments '*:dirs:_path_files -/'
       ;;
-    remove)
-      _arguments '*:projects:__knoch_projects'
-      ;;
-    s|show)
+    remove|show|open)
       _arguments '*:projects:__knoch_projects'
       ;;
   esac
