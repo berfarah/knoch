@@ -1,27 +1,11 @@
 # Knoch
 
-### `config`
+### `bundle`
 
-Add configuration to `.knoch` file
-
-```sh
-kh config <KEY> <VALUE>
-```
-
-### `help`
-
-Output help for everything
+Clone missing repositories, sync existing ones
 
 ```sh
-kh help
-```
-
-### `init`
-
-Create a directory with the `.knoch` file
-
-```sh
-kh init [<DIR>]
+knoch bundle
 ```
 
 ### `add`
@@ -29,7 +13,7 @@ kh init [<DIR>]
 Clone the repository, add it to `.knoch`
 
 ```sh
-kh add <REPO> [<DIR>]
+knoch add <REPO/DIR> [<DIR>]
 ```
 
 ### `remove`
@@ -37,13 +21,37 @@ kh add <REPO> [<DIR>]
 Remove the repository, remove it from `.knoch`
 
 ```sh
-kh remove <REPO/DIR>
+knoch remove <DIR>
 ```
 
-### `bundle`
+### `list`
 
-Clone missing repositories, sync existing ones
+List tracked repositories
 
 ```sh
-kh bundle
+knoch remove <DIR>
+```
+
+### `open`
+
+Open the selected project in $EDITOR
+
+```sh
+knoch open <DIR>
+```
+
+### `show`
+
+Show full path of selected project
+
+```sh
+knoch show <DIR>
+```
+
+### `help`
+
+Output help for everything
+
+```sh
+knoch help
 ```

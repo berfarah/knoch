@@ -13,7 +13,7 @@ func init() {
 	Runner.Register(&command.Command{
 		Run: runRemove,
 
-		Usage: "remove <REPOSITORY/DIRECTORY>",
+		Usage: "remove <DIRECTORY>",
 		Name:  "remove",
 		Long:  "Remove and stop tracking repository",
 	})
