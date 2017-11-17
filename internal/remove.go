@@ -16,6 +16,8 @@ func init() {
 		Usage: "remove <DIRECTORY>",
 		Name:  "remove",
 		Long:  "Remove and stop tracking repository",
+
+		Aliases: []string{"rm"},
 	})
 }
 
@@ -23,17 +25,24 @@ func runRemove(c *command.Command, r *command.Runtime) {
 	var (
 		proj project.Project
 		err  error
+		dir  string
 	)
 
 	if len(r.Args) == 0 {
 		utils.Exit(c.UsageText())
 	}
 
-	proj, err = project.FromDir(r.Args[0])
-	utils.Check(err, "")
+	dir = r.Args[0]
+
+	if utils.IsDir(dir) {
+		proj, err = project.FromDir(dir)
+		utils.Check(err, "")
+	} else {
+		proj, _ = project.Fetch(dir)
+	}
 
 	if !project.Remove(proj) {
-		utils.Exit("Not tracking " + r.Args[0] + ", did nothing")
+		utils.Exit("Not tracking " + dir + ", did nothing")
 	}
 
 	err = config.Write()

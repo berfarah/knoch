@@ -6,7 +6,7 @@ import (
 )
 
 // VERSION of knoch
-const VERSION = "0.3.0"
+const VERSION = "0.3.1"
 
 func init() {
 	Runner.Register(&command.Command{
