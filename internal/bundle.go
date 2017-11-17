@@ -30,7 +30,6 @@ func runBundle(c *command.Command, r *command.Runtime) {
 	bundleProgress := newBundleProgress(count)
 
 	go bundleProgress.Track(results, done)
-	fmt.Println(config.Workers())
 	for w := 0; w < config.Workers(); w++ {
 		go bundleWorker(w, projs, results)
 	}
