@@ -31,9 +31,10 @@ func FromRepo(repo string) (Project, error) {
 
 func FromDir(dir string) (Project, error) {
 	dir = cleanPath(dir)
+	project := New(dir, "")
 
-	repo, err := git.RepoFromDir(dir)
-	project := New(dir, repo)
+	repo, err := git.RepoFromDir(project.Path())
+	project.Repo = repo
 
 	return project, err
 }
@@ -57,7 +58,7 @@ func cleanPath(dir string) string {
 }
 
 func (p Project) Exists() bool {
-	return utils.IsDir(p.Dir) && git.IsRepo(p.Dir)
+	return utils.IsDir(p.Path()) && git.IsRepo(p.Path())
 }
 
 func (p Project) Path() string {

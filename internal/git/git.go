@@ -1,6 +1,7 @@
 package git
 
 import (
+	"errors"
 	"os"
 	"os/exec"
 	"strings"
@@ -68,6 +69,9 @@ func (c *Command) Branch() (branch string, err error) {
 func (c *Command) LastCommit() (timestamp string, err error) {
 	c.Args = []string{"rev-list", "--format=format:'%ci'", "--max-count=1", "HEAD"}
 	strings, err := c.Output()
+	if len(strings) < 2 {
+		return "", errors.New("Not a repository")
+	}
 	t, err := time.Parse("'2006-1-2 15:04:05 -0700'", strings[1])
 	if err == nil {
 		timestamp = timeago.FromTime(t)

@@ -5,7 +5,12 @@
 # https://github.com/zsh-users/zsh-completions/blob/master/zsh-completions-howto.org
 
 __knoch_projects() {
-  _values $(knoch ls --name-only)
+  projects=($(knoch ls --name-only))
+  if [ $#projects -eq 0 ]; then
+    _message "No projects found"
+    return
+  fi
+  _values "projects" $projects
 }
 
 _knoch() {
@@ -33,10 +38,10 @@ _knoch() {
       _arguments '--name-only[list only repo names]'
       ;;
     add)
-      _arguments '*:dirs:_path_files -/'
+      _arguments '1:dir:_path_files -/'
       ;;
     rm|remove|show|open)
-      _arguments '*:projects:__knoch_projects'
+      _arguments '1:project:__knoch_projects'
       ;;
   esac
 }

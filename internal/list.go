@@ -34,6 +34,7 @@ type listGitDetail struct {
 	Dir          string
 	Branch       string
 	LatestCommit string
+	Error        error
 }
 
 type listMaxLengths struct {
@@ -75,6 +76,14 @@ func (l *listTable) Sort() {
 func (l *listTable) Print() {
 	for _, dir := range l.order {
 		details := l.results[dir]
+
+		if details.Error != nil {
+			format := fmt.Sprintf("%%-%ds\t%%s", l.maxLengths.Dir)
+			str := fmt.Sprintf(format, dir, details.Error)
+			utils.Println(str)
+			continue
+		}
+
 		format := fmt.Sprintf("%%-%ds\t%%%ds\t%%s", l.maxLengths.Dir, l.maxLengths.Branch)
 		str := fmt.Sprintf(format, dir, details.Branch, details.LatestCommit)
 		utils.Println(str)
@@ -128,18 +137,13 @@ func listWorker(projDirs <-chan project.Project, done chan<- listGitDetail) {
 		g := git.New().InDir(proj.Path())
 
 		branch, err := g.Branch()
-		if err != nil {
-			utils.Errorln(err)
-		}
 		lastCommit, err := g.LastCommit()
-		if err != nil {
-			utils.Errorln(err)
-		}
 
 		done <- listGitDetail{
 			Dir:          proj.Dir,
 			Branch:       branch,
 			LatestCommit: lastCommit,
+			Error:        err,
 		}
 	}
 }
