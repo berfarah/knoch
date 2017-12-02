@@ -5,6 +5,7 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/berfarah/knoch/internal/bundle"
 	"github.com/berfarah/knoch/internal/command"
 	"github.com/berfarah/knoch/internal/config"
 	"github.com/berfarah/knoch/internal/config/project"
@@ -18,6 +19,13 @@ func init() {
 
 		Usage: "bundle",
 		Name:  "bundle",
+		Long:  "Download or update tracked repositories",
+	})
+	Runner.Register(&command.Command{
+		Run: bundle.Run,
+
+		Usage: "b",
+		Name:  "b",
 		Long:  "Download or update tracked repositories",
 	})
 }
@@ -43,7 +51,7 @@ func runBundle(c *command.Command, r *command.Runtime) {
 
 func bundleWorker(id int, projs <-chan project.Project, results chan<- bundleStatus) {
 	for proj := range projs {
-		if utils.IsDir(proj.Path()) {
+		if proj.Exists() {
 			err := git.Sync(proj.Path())
 			results <- bundleStatus{Repo: proj.Repo, Sync: true, Error: err}
 		} else {
@@ -51,6 +59,15 @@ func bundleWorker(id int, projs <-chan project.Project, results chan<- bundleSta
 			results <- bundleStatus{Repo: proj.Repo, Download: true, Error: err}
 		}
 	}
+}
+
+type bundleRepoStatus struct {
+	Index  int
+	Dir    string
+	From   string
+	To     string
+	Status string
+	Error  error
 }
 
 type bundleStatus struct {

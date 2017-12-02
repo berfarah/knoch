@@ -1,0 +1,59 @@
+Bundle behavior:
+
+get list of projects alphabetically
+send list of projects to channel with index
+add waitgroup
+send 16 goroutines to do their thing
+
+Workers:
+  read stdout streaming
+  timeout after 60 seconds
+  send progress via channel to printer
+
+      // something like:
+      var cmd exec.Cmd
+      cmd = exec.Command("ping", "127.0.0.1", `-t`)
+
+      cmdReader, err := cmd.StdoutPipe()
+      if err != nil {
+        fmt.Fprintln(os.Stderr, "Error creating StdoutPipe for Cmd", err)
+        os.Exit(1)
+      }
+
+      scanner := bufio.NewScanner(cmdReader)
+      go func() {
+        for scanner.Scan() {
+          fmt.Printf("report on %s", scanner.Text())
+        }
+      }()
+
+      if err := cmd.Start(); err != nil {
+          log.Fatal(err)
+      }
+      timer := time.AfterFunc(60 * time.Second, func() {
+          cmd.Process.Kill()
+      })
+      err := cmd.Wait()
+      timer.Stop()
+
+Printer:
+  receive progress via channel
+  printer loops every 0.2 seconds to see if it should print
+  if changed, print new values erasing old ones (new page)
+
+    changed := true
+    set timer
+
+      switch {
+        case(0.2 seconds passed?) {
+          if changed {
+            print
+          }
+          changed = false
+          reset timer
+        }
+        case(thing := <- channel) {
+          array[thing.Index] = thing
+          changed = true
+        }
+      }
